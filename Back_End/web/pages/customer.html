@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!--    http:://localhost:8080/pos_one/pages/test-customer.html-->
+    <!--    http:://localhost:8080/pos_one/pages/customer-->
+
+    <!--    http:://localhost:8080/pos_one/pages/customer-->
     <meta charset="UTF-8">
     <title>Customer Manage</title>
     <meta content="width=device-width initial-scale=1" name="viewport">
@@ -20,11 +24,10 @@
 <header class="jumbotron bg-primary text-white p-3">
     <h1 class="position-absolute" id="nav"></h1>
     <ul class="list-group list-group-horizontal text-danger justify-content-end font-weight-bold">
-        <li class="list-group-item bg-white" id="lnkHome"><a href="../index.jsp">Home</a></li>
-        <li class="list-group-item bg-danger text-white" id="lnkCustomer"><a class="text-white" href="/jsonp/pages/customer">Customer</a>
-        </li>
-        <li class="list-group-item bg-white" id="lnkItem"><a href="/jsonp/pages/item">Item</a></li>
-        <li class="list-group-item bg-white" id="lnkOrders"><a href="purchase-order.html">Orders</a></li>
+        <li class="list-group-item bg-white" id="lnkHome"><a href="../index.html">Home</a></li>
+        <li class="list-group-item bg-white" id="lnkCustomer"><a href="customer.html">Customer</a></li>
+        <li class="list-group-item bg-white" id="lnkItem"><a  href="item.html">Item</a></li>
+        <li class="list-group-item bg-danger text-white" id="lnkOrders"><a class="text-white" href="purchase-order.html">Orders</a></li>
     </ul>
 </header>
 
@@ -33,7 +36,7 @@
     <section class="row">
         <div class="col-12 col-lg-4">
             <h1>Customer Registration</h1>
-            <form id="customerForm">
+            <form id="cusForm">
                 <div class="form-group">
                     <label for="txtCustomerID">Customer ID</label>
                     <input name="cusID" class="form-control" id="txtCustomerID" type="text">
@@ -49,11 +52,11 @@
                     <input name="cusAddress" class="form-control" id="txtCustomerAddress" type="text">
                     <span class="control-error" id="lblcusaddress"></span>
                 </div>
-                <div class="form-group">
+             <!--   <div class="form-group">
                     <label for="txtCustomerSalary">Customer Salary</label>
                     <input name="cusSalary" class="form-control" id="txtCustomerSalary" type="text">
                     <span class="control-error" id="lblcussalary"></span>
-                </div>
+                </div>-->
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary" id="btnCustomer">
                         Save Customer
@@ -64,19 +67,19 @@
                     <button type="button" class="btn btn-warning"
                             id="btnUpdate">Update
                     </button>
-                    <button  type="button" class="btn btn-success" id="btnGetAll">Get All</button>
+                    <button type="button" class="btn btn-success" id="btnGetAll">Get All</button>
                     <button type="button" class="btn btn-danger" id="btn-clear1">Clear All</button>
                 </div>
             </form>
         </div>
-        <div class="col-12 col-lg-8 mt-4">
+        <div class="col-12 col-lg-8 mt-3">
             <table class="table table-bordered table-hover">
                 <thead class="bg-danger text-white">
                 <tr>
                     <th>Customer ID</th>
                     <th>Customer Name</th>
                     <th>Customer Address</th>
-                    <th>Customer Salary</th>
+
                 </tr>
                 </thead>
                 <tbody id="tblCustomer">
@@ -92,85 +95,81 @@
 <script src="../assets/js/bootstrap.min.js"></script>
 
 
-<!--bind a event on btn GetAll btn-->
 <script>
     getAll();
-    function bindRowClickEvent() {
+    bindClickEvent();
+
+    function bindClickEvent() {
         $("#tblCustomer>tr").click(function () {
             let id = $(this).children(":eq(0)").text();
             let name = $(this).children(":eq(1)").text();
-            let address = $(this).children(":eq(2)").text();
-            let salary = $(this).children(":eq(3)").text();
-
+            let add = $(this).children(":eq(2)").text();
             $("#txtCustomerID").val(id);
             $("#txtCustomerName").val(name);
-            $("#txtCustomerAddress").val(address);
-            $("#txtCustomerSalary").val(salary);
+            $("#txtCustomerAddress").val(add);
 
         });
-
     }
 
-    $("#btnGetAll").click(function(){
-        <!--send ajax request to the customer servlet using jQuery-->
-       getAll();
-
-    });
-    function clear(id,name,address,salary){
-        $("#txtCustomerID").val(id);
-        $("#txtCustomerName").val(name);
-        $("#txtCustomerAddress").val(address);
-        $("#txtCustomerSalary").val(salary);
-    }
-
-    $("#btnCustomer").click(function () {
-        let formData =$("#customerForm").serialize();
-        console.log(formData);
-      $.ajax({
-          url:"customer?option=add",
-          method:"post",
-          data: formData,
-          success:function (res) {
-              console.log(res);
-              alert(res.message);
-              getAll();
-
-          },
-          error:function (res) {
-              alert(res.message);
-          }
-      });
+    $("#btnGetAll").click(function () {
+        getAll();
     });
 
-    $("#btnCusDelete").click(function () {
-        let formData =$("#customerForm").serialize();
-        console.log(formData);
+    $("#btnUpdate").click(function () {
+        let id = $("#txtCustomerID").val();
+        let name = $("#txtCustomerName").val();
+        let add = $("#txtCustomerAddress").val();
+        var cusObj = {
+            id: id,
+            name: name,
+            address: add
+        }
         $.ajax({
-            url:"customer?option=delete",
-            method:"post",
-            data: formData,
-            success:function (res) {
+            url: "customer",
+            method: "put",
+            contentType: "application/json",
+            data: JSON.stringify(cusObj),
+            dataType:"json",
+
+            success: function (res) {
                 alert(res.message);
                 getAll();
             },
-            error:function (res) {
-                alert(res.message);
+            error: function (error) {
+                alert(JSON.parse(error.responseText).message);
             }
         });
     });
-    $("#btnUpdate").click(function () {
-        let formData =$("#customerForm").serialize();
-        console.log(formData);
+    $("#btnCusDelete").click(function () {
+        let id = $("#txtCustomerID").val();
         $.ajax({
-            url:"customer?option=update",
-            method:"post",
-            data: formData,
-            success:function (res) {
+            url: "customer?id=" + id,
+            method: "delete",
+            dataType:"get",
+            success: function (res) {
                 alert(res.message);
                 getAll();
             },
-            error:function (res) {
+            error: function (error) {
+                alert(JSON.parse(error.responseText).message);
+            }
+
+        });
+    });
+
+    $("#btnCustomer").click(function () {
+        let formData = $("#cusForm").serialize();
+        $.ajax({
+            url: "customer",
+            method: "post",
+            data: formData,
+            dataType:"json",
+            success: function (res) {
                 alert(res.message);
+                getAll();
+            },
+            error: function (error) {
+alert(JSON.parse(error.responseText).message);
             }
         });
     });
@@ -178,24 +177,35 @@
     function getAll() {
         $("#tblCustomer").empty();
         $.ajax({
-            url:'customer',
-            success:function (resp){
-                for (let customer of resp){
-                    let row = `<tr><td>${customer.id}</td><td>${customer.name}</td><td>${customer.address}</td><td>${customer.salary}</td></tr>`;
+            url: 'customer?option=getAll',
+            success: function (res) {
+                for (let customer of res.data) {
+                    let id = customer.id;
+                    let name = customer.name;
+                    let add = customer.address;
+                    let row = `<tr>
+                                  <td>${id}</td>
+                                  <td>${name}</td>
+                                  <td>${add} </td>
+                                   </tr>`;
                     $("#tblCustomer").append(row);
                 }
-                bindRowClickEvent();
-                clear("","","","");
+                bindClickEvent();
+                setTextFeildValueEmpty();
+            },
+            error: function (error) {
+                alert(JSON.parse(error.responseText).message);
             }
         });
+
+        function setTextFeildValueEmpty() {
+            $("#txtCustomerID").val("");
+            $("#txtCustomerName").val("");
+            $("#txtCustomerAddress").val(" ");
+        }
+
     }
-
-
-
 </script>
-
-
-<!--when the response received catch it and set it to the table-->
 
 
 </body>
